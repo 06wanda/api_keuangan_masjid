@@ -11,6 +11,7 @@ app.get('/', (req, res) => {
 
 
 app.use('/users', require('./router/Auth'))
+app.use('/data-kopi', require('./router/DataKopi'))
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
