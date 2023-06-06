@@ -18,5 +18,9 @@ const gambar = multer.diskStorage({
 const uploadImg = multer({ storage: gambar }).single("gambar")
 
 router.post('/input', uploadImg, controller.inputDataKopi)
+router.get('/get-data', controller.getDataKopi) //metode get untuk menampilkan data
+router.get('/get-data/:id', controller.getDataById)
+router.get('/delete-kopi/:id', controller.hapusDataKopi)
+router.put('/update-kopi/:id', uploadImg, controller.updateKopi)
 
 module.exports = router
