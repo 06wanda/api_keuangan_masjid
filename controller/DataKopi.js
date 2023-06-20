@@ -1,9 +1,10 @@
 const { PrismaClient } = require('@prisma/client') //untuk konek database
+const { json } = require('express')
 const prisma = new PrismaClient()
 
 exports.inputDataKopi = async (req, res) => {
     try {
-        const data = req.body //req body untuk itu karna mengirim data lewat body
+        const data = JSON.parse(req.body.data)
         data.gambar = req.file.filename
         await prisma.data_kopi.create({
             data: data
@@ -80,7 +81,7 @@ exports.hapusDataKopi = async (req, res) => {
 
 exports.updateKopi = async (req, res) => {
     try {
-        const data = req.body
+        const data = JSON.parse(req.body.data)
         if(req.file){
             data.gambar = req.file.filename
         }
