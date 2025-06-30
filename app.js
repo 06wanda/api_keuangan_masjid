@@ -18,10 +18,10 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
   httpOnly: true,
-  secure: true,        // ✅ WAJIB true karena Railway pakai HTTPS
-  sameSite: 'none',    // ✅ supaya cookie bisa lintas origin
+  secure: true,
+sameSite: 'lax ',
   maxAge: 24 * 60 * 60 * 1000
-}
+} 
 
 }));
 
