@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const controller = require('../controller/DataKopi')
+const controller = require('../controller/DataTransaksi')
 const multer = require('multer')
 
 const gambar = multer.diskStorage({
@@ -15,12 +15,12 @@ const gambar = multer.diskStorage({
     }
 })
 
-const uploadImg = multer({ storage: gambar }).single("gambar")
+const uploadImg = multer({ storage: gambar }).single("bukti")
 
-router.post('/input', uploadImg, controller.inputDataKopi)
-router.get('/get-data', controller.getDataKopi) //metode get untuk menampilkan data
+router.post('/input', uploadImg, controller.inputDataTransaksi)
+router.get('/get-data', controller.getDataTransaksi) //metode get untuk menampilkan data
 router.get('/get-data/:id', controller.getDataById)
-router.get('/delete-kopi/:id', controller.hapusDataKopi)
-router.put('/update-kopi/:id', uploadImg, controller.updateKopi)
+router.delete('/delete-transaksi/:id', controller.hapusDataTransaksi)
+router.put('/update-transaksi/:id', uploadImg, controller.updateTransaksi)
 
 module.exports = router

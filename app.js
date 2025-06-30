@@ -1,25 +1,44 @@
-const express = require('express')
-const app = express()
-const port = 3000
-const path = require('path')
-const cors = require('cors')
+const express = require('express');
+const app = express();
+const port = 3000;
+const path = require('path');
+const cors = require('cors');
+const session = require('express-session');
 
-app.use(express.urlencoded({ extended: true}))
-app.use(cors())
+// 1️⃣ Atur CORS dulu
+app.use(cors({
+  origin: 'http://localhost:8080',
+  credentials: true
+}));
+
+// 2️⃣ Baru Session
+app.use(session({
+  secret: 'rahasia-wanda',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: false, // kalau belum https, ini false
+    maxAge: 24 * 60 * 60 * 1000
+  }
+}));
+
+// 3️⃣ Parsing body
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.json({
-    api :'Wanda '})
-})
+  res.json({ api: 'Wanda' });
+});
 
-app.use(
-  '/img',
-  express.static(path.join(__dirname, "public/img"))
-)
-
-app.use('/users', require('./router/Auth'))
-app.use('/data-kopi', require('./router/DataKopi'))
+// 4️⃣ Route static dan lainnya
+app.use('/img', express.static(path.join(__dirname, 'public/img')));
+app.use('/users', require('./router/Auth'));
+app.use('/data_keuangan', require('./router/DataTransaksi'));
+app.use('/data_aset', require('./router/DataAset'));
+app.use('/admin', require('./router/AdminMasjid'));
+app.use('/laporan', require('./router/Laporan'));
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+  console.log(`Server berjalan di http://localhost:${port}`);
+});

@@ -3,43 +3,96 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-model data_kopi {
-  id         Int         @id @default(autoincrement())
-  jenis_kopi String      @db.VarChar(50)
-  nama_kopi  String      @db.VarChar(50)
-  harga      Decimal     @db.Decimal(10, 0)
-  deskripsi  String      @db.Text
-  gambar     String      @db.Text
-  transaksi  transaksi[]
+model data_keuangan {
+  id_transaksi      Int                        @id @default(autoincrement())
+  jenis_transaksi   String                     @db.VarChar(20)
+  tanggal_transaksi DateTime                   @db.Date
+  kategori          String                     @db.VarChar(50)
+  nominal           Decimal                    @db.Decimal(10, 0)
+  keterangan        String                     @db.VarChar(20)
+  bukti             String                     @db.VarChar(100)
+  sumber_dana       data_keuangan_sumber_dana?
+  klasifikasi_kas   String                     @db.VarChar(100)
+  id_masjid         Int?
+  masjid            masjid?                    @relation(fields: [id_masjid], references: [id_masjid], onDelete: Restrict, onUpdate: Restrict, map: "fk_data_keuangan_masjid")
+
+  @@index([id_masjid], map: "idx_data_keuangan_id_masjid")
 }
 
-model transaksi {
-  id          Int       @id @default(autoincrement())
-  id_kopi     Int
-  id_user     Int
-  jumlah_beli Int
-  harga       Decimal   @db.Decimal(10, 0)
-  total       Decimal   @db.Decimal(10, 0)
-  status      Int       @default(1)
-  created_at  DateTime  @default(now()) @db.Timestamp(0)
-  data_kopi   data_kopi @relation(fields: [id_kopi], references: [id], onUpdate: Restrict, map: "transaksi_ibfk_1")
-  users       users     @relation(fields: [id_user], references: [id], onUpdate: Restrict, map: "transaksi_ibfk_2")
-
-  @@index([id_kopi], map: "id_kopi")
-  @@index([id_user], map: "id_user")
+model masjid {
+  id_masjid     Int             @id @default(autoincrement())
+  nama_masjid   String          @db.VarChar(100)
+  alamat_masjid String          @db.VarChar(100)
+  aset          aset[]
+  aset_lama     aset_lama[]
+  data_keuangan data_keuangan[]
+  users         users[]
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model users {
-  id           Int         @id @default(autoincrement())
-  username     String      @unique(map: "username") @db.VarChar(50)
-  password     String      @db.VarChar(100)
-  no_telp      String      @db.VarChar(18)
-  nama_lengkap String      @db.VarChar(50)
-  role         Int         @default(1)
-  transaksi    transaksi[]
+  id_user              Int        @id @default(autoincrement())
+  username             String     @unique(map: "username") @db.VarChar(20)
+  password             String     @db.VarChar(100)
+  must_change_password Boolean
+  no_hp                String?    @db.VarChar(20)
+  id_masjid            Int?
+  role                 users_role
+  masjid               masjid?    @relation(fields: [id_masjid], references: [id_masjid], map: "fk_users_masjid_relasi")
+
+  @@index([id_masjid], map: "idx_users_id_masjid")
+}
+
+model aset {
+  id_aset           Int      @id @default(autoincrement())
+  nama_aset         String   @db.VarChar(100)
+  jumlah            Int
+  nilai_aset        Decimal  @db.Decimal(15, 2)
+  sumber_aset       String   @db.VarChar(100)
+  tanggal_perolehan DateTime @db.Date
+  status_pembayaran String   @db.VarChar(50)
+  nilai_bayar       Decimal  @db.Decimal(10, 0)
+  nilai_sisa        Decimal  @db.Decimal(10, 0)
+  jenis_aset        String   @db.VarChar(50)
+  kategori_aset     String   @db.VarChar(50)
+  id_masjid         Int?
+  masjid            masjid?  @relation(fields: [id_masjid], references: [id_masjid], onDelete: Restrict, onUpdate: Restrict, map: "fk_aset_masjid_relasi")
+
+  @@index([id_masjid], map: "idx_aset_id_masjid")
+}
+
+model aset_lama {
+  id_aset_lama  Int                     @id @default(autoincrement())
+  nama_aset     String                  @db.VarChar(100)
+  jumlah        Int
+  nilai_aset    Decimal                 @db.Decimal(15, 2)
+  jenis_aset    aset_lama_jenis_aset
+  kategori_aset aset_lama_kategori_aset
+  id_masjid     Int
+  masjid        masjid                  @relation(fields: [id_masjid], references: [id_masjid], onUpdate: Restrict, map: "aset_lama_ibfk_1")
+
+  @@index([id_masjid], map: "idx_aset_lama_id_masjid")
+}
+
+enum users_role {
+  admin
+  pengurus
+}
+
+enum data_keuangan_sumber_dana {
+  terikat
+  tidak_terikat
+}
+
+enum aset_lama_jenis_aset {
+  lancar
+  tidak_lancar
+}
+
+enum aset_lama_kategori_aset {
+  terikat
+  tidak_terikat
 }
