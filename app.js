@@ -19,6 +19,8 @@ app.use(session({
   cookie: {
     httpOnly: true,
     secure: false, // kalau belum https, ini false
+        sameSite: 'none',  // ini penting agar cookie bisa dikirim lintas origin
+
     maxAge: 24 * 60 * 60 * 1000
   }
 }));
