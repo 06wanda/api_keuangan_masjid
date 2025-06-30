@@ -17,12 +17,12 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    httpOnly: true,
-    secure: false, // kalau belum https, ini false
-        sameSite: 'none',  // ini penting agar cookie bisa dikirim lintas origin
+  httpOnly: true,
+  secure: true,        // ✅ WAJIB true karena Railway pakai HTTPS
+  sameSite: 'none',    // ✅ supaya cookie bisa lintas origin
+  maxAge: 24 * 60 * 60 * 1000
+}
 
-    maxAge: 24 * 60 * 60 * 1000
-  }
 }));
 
 // 3️⃣ Parsing body
