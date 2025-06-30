@@ -7,7 +7,7 @@ const session = require('express-session');
 
 // 1️⃣ Atur CORS dulu
 app.use(cors({
-  origin: 'http://localhost:8080',
+  origin: process.env.CORS_ORIGIN || 'http://localhost:8080',
   credentials: true
 }));
 
