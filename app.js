@@ -5,46 +5,30 @@ const path = require('path');
 const cors = require('cors');
 const session = require('express-session');
 
-// ✅ 1. Izinkan frontend lokal dan Netlify (ganti domain Netlify kalau beda)
-const allowedOrigins = [
-  'http://localhost:8080',
-  'https://laporan-keuangan-masjid.netlify.app'
-];
-
+// ✅ CORS Configuration (allow all origins that the browser sends)
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like curl/postman)
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true
+  origin: true,          // Allow all dynamic origins (Netlify, Railway, localhost, etc.)
+  credentials: true      // Allow cookies to be sent
 }));
 
-// ✅ 2. Konfigurasi Session
+// ✅ Session Configuration
 app.use(session({
   secret: 'rahasia-wanda',
   resave: false,
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: true,            // true jika pakai HTTPS (di Railway ✔️)
-    sameSite: 'none',         // ✅ TANPA spasi
-    maxAge: 24 * 60 * 60 * 1000 // 1 hari
+    secure: process.env.NODE_ENV === 'production',  // secure true only if in production (Railway/HTTPS)
+    sameSite: 'none',      // Allow cross-origin cookies
+    maxAge: 24 * 60 * 60 * 1000 // 1 day
   }
 }));
 
-// ✅ 3. Parsing body
+// ✅ Body parser
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// ✅ 4. Routing
-app.get('/', (req, res) => {
-  res.json({ api: 'Wanda' });
-});
-
+// ✅ API routes
 app.use('/img', express.static(path.join(__dirname, 'public/img')));
 app.use('/users', require('./router/Auth'));
 app.use('/data_keuangan', require('./router/DataTransaksi'));
@@ -52,7 +36,13 @@ app.use('/data_aset', require('./router/DataAset'));
 app.use('/admin', require('./router/AdminMasjid'));
 app.use('/laporan', require('./router/Laporan'));
 
-// ✅ 5. Jalankan server
+// ✅ Serve Vue frontend from /dist (for production build)
+app.use(express.static(path.join(__dirname, 'dist')));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+
+// ✅ Start server
 app.listen(port, () => {
-  console.log(`Server berjalan di http://localhost:${port}`);
+  console.log(`✅ Server berjalan di http://localhost:${port}`);
 });
