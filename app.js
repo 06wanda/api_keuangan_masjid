@@ -31,7 +31,7 @@ app.use(session({
   cookie: {
     httpOnly: true,
     secure: true,            // true jika pakai HTTPS (di Railway ✔️)
-    sameSite: 'lax',         // ✅ TANPA spasi
+    sameSite: 'none',         // ✅ TANPA spasi
     maxAge: 24 * 60 * 60 * 1000 // 1 hari
   }
 }));
