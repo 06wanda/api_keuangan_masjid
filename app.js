@@ -5,30 +5,37 @@ const path = require('path');
 const cors = require('cors');
 const session = require('express-session');
 
-// ✅ CORS Configuration (allow all origins that the browser sends)
+// Middleware cek session untuk debug
+app.use((req, res, next) => {
+  console.log('Session object:', req.session);
+  next();
+});
+
+// CORS Configuration
 app.use(cors({
-  origin: true,          // Allow all dynamic origins (Netlify, Railway, localhost, etc.)
-  credentials: true      // Allow cookies to be sent
+  origin: process.env.NODE_ENV === 'production' ? 'https://apikeuanganmasjid-production.up.railway.app' : 'http://localhost:8080',
+  credentials: true,
 }));
 
-// ✅ Session Configuration
+
+// Session Configuration
 app.use(session({
   secret: 'rahasia-wanda',
   resave: false,
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',  // secure true only if in production (Railway/HTTPS)
-    sameSite: 'none',      // Allow cross-origin cookies
-    maxAge: 24 * 60 * 60 * 1000 // 1 day
+    secure: process.env.NODE_ENV === 'production',  // hanya HTTPS di production
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',  // none untuk cross-origin production, lax untuk development
+    maxAge: 24 * 60 * 60 * 1000
   }
 }));
 
-// ✅ Body parser
+// Body parser
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// ✅ API routes
+// API routes
 app.use('/img', express.static(path.join(__dirname, 'public/img')));
 app.use('/users', require('./router/Auth'));
 app.use('/data_keuangan', require('./router/DataTransaksi'));
@@ -36,13 +43,12 @@ app.use('/data_aset', require('./router/DataAset'));
 app.use('/admin', require('./router/AdminMasjid'));
 app.use('/laporan', require('./router/Laporan'));
 
-// ✅ Serve Vue frontend from /dist (for production build)
+// Serve Vue frontend (production)
 app.use(express.static(path.join(__dirname, 'dist')));
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
-// ✅ Start server
 app.listen(port, () => {
   console.log(`✅ Server berjalan di http://localhost:${port}`);
 });

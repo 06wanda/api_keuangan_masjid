@@ -162,7 +162,7 @@ exports.loginUser = async (req, res) => {
       return res.json({ status: false, msg: "Password salah" });
     }
 
-    // ✅ Simpan user ke dalam session
+    // Simpan user ke session
     req.session.user = {
       id_user: user.id_user,
       username: user.username,
@@ -171,17 +171,26 @@ exports.loginUser = async (req, res) => {
     };
     console.log("✅ User Session Created:", req.session.user);
 
-    return res.json({
-      status: true,
-      msg: "Berhasil login",
-      force_change_password: user.must_change_password,
-      data: req.session.user,
+    // Simpan session secara eksplisit
+    req.session.save(err => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.status(500).json({ status: false, msg: 'Gagal simpan session' });
+      }
+      return res.json({
+        status: true,
+        msg: "Berhasil login",
+        force_change_password: user.must_change_password,
+        data: req.session.user,
+      });
     });
+
   } catch (error) {
     console.error("Login Error:", error);
     return res.status(500).json({ status: false, msg: "Terjadi kesalahan pada server" });
   }
 };
+
 
 // controller/authController.js
 // controller/Auth.js
