@@ -23,12 +23,12 @@ app.use(session({
   secret: 'rahasia-wanda',
   resave: false,
   saveUninitialized: false,
-  cookie: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',  // hanya HTTPS di production
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',  // none untuk cross-origin production, lax untuk development
-    maxAge: 24 * 60 * 60 * 1000
-  }
+cookie: {
+  httpOnly: true,
+  secure: true,           // ✅ karena Railway pakai HTTPS
+  sameSite: 'none',       // ✅ agar cookie terkirim dari frontend ke backend
+  maxAge: 24 * 60 * 60 * 1000
+}
 }));
 
 // Body parser
